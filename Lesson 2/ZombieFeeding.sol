@@ -24,20 +24,24 @@ contract ZombieFeeding is ZombieFactory {
     address ckAddress = 0x06012c8cf97BEaD5deAe237070F9587f8E7A266d;
     KittyInterface kittyContract = KittyInterface(ckAddress);
 
-    // Modifique a função aqui:
-    function feedAndMultiply(uint256 _zombieId, uint256 _targetDna) public {
+    function feedAndMultiply(
+        uint256 _zombieId,
+        uint256 _targetDna,
+        string _species
+    ) public {
         require(msg.sender == zombieToOwner[_zombieId]);
         Zombie storage myZombie = zombies[_zombieId];
         _targetDna = _targetDna % dnaModulus;
         uint256 newDna = (myZombie.dna + _targetDna) / 2;
-        // Adicione a declaração de `if` aqui
+        if (keccak256(_species) == keccak256("kitty")) {
+            newDna = newDna - (newDna % 100) + 99;
+        }
         _createZombie("NoName", newDna);
     }
 
     function feedOnKitty(uint256 _zombieId, uint256 _kittyId) public {
         uint256 kittyDna;
         (, , , , , , , , , kittyDna) = kittyContract.getKitty(_kittyId);
-        // E modifique a função aqui:
-        feedAndMultiply(_zombieId, kittyDna);
+        feedAndMultiply(_zombieId, kittyDna, "kitty");
     }
 }
